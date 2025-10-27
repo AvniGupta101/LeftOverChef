@@ -1,0 +1,158 @@
+{
+  "users": [
+    {
+      "id": "u-admin",
+      "name": "Admin",
+      "email": "admin@leftover.com",
+      "role": "admin"
+    },
+    {
+      "id": "u-ngo1",
+      "name": "Helping Hands",
+      "email": "ngo1@leftover.com",
+      "role": "ngo"
+    },
+    {
+      "id": "u-d1",
+      "name": "Donor One",
+      "email": "donor1@leftover.com",
+      "role": "donor"
+    }
+  ],
+  "listings": [
+    {
+      "id": "l-1",
+      "donorId": "u-d1",
+      "title": "Cooked rice & curry",
+      "description": "Fresh rice and vegetable curry, 10 plates. Ready for pickup.",
+      "quantity": 10,
+      "pickup_address": "MG Road, Bangalore",
+      "pickup_lat": 12.975,
+      "pickup_lng": 77.605,
+      "images": [
+        {
+          "url": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+        }
+      ],
+      "status": "claimed",
+      "expires_at": "2025-12-01T18:00:00Z",
+      "tags": [
+        "cooked",
+        "vegetarian"
+      ],
+      "createdAt": "2025-10-20T09:00:00Z"
+    },
+    {
+      "id": "l-2",
+      "donorId": "u-d1",
+      "title": "Packaged snacks",
+      "description": "Sealed packaged snacks (50 pieces).",
+      "quantity": 50,
+      "pickup_address": "Indiranagar, Bangalore",
+      "images": [
+        {
+          "url": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+        }
+      ],
+      "status": "pending",
+      "expires_at": "2025-11-01T18:00:00Z",
+      "tags": [
+        "packaged"
+      ],
+      "createdAt": "2025-10-22T09:00:00Z"
+    }
+  ],
+  "claims": [
+    {
+      "id": "9103",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "requested",
+      "contactInfo": {
+        "name": "Helping Hands",
+        "phone": "9876543210"
+      },
+      "createdAt": "2025-10-26T13:00:00Z"
+    },
+    {
+      "id": "4525",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "cancelled",
+      "contactInfo": {
+        "name": "Helping Hands",
+        "phone": "9876543210"
+      },
+      "createdAt": "2025-10-26T13:00:00Z"
+    },
+    {
+      "id": "feb6",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "requested",
+      "contactInfo": {
+        "name": "Helping Hands",
+        "phone": "9876543210"
+      },
+      "createdAt": "2025-10-26T13:00:00Z"
+    },
+    {
+      "id": "f353",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "cancelled",
+      "contactInfo": {
+        "name": "Helping Hands",
+        "phone": "9876543210"
+      },
+      "createdAt": "2025-10-26T13:00:00Z"
+    },
+    {
+      "id": "2344",
+      "listingId": "l-1",
+      "ngoId": "u-ngo2",
+      "status": "requested",
+      "contactInfo": {
+        "name": "Helping Hands",
+        "phone": "9876543210"
+      },
+      "createdAt": "2025-10-26T13:00:00Z"
+    },
+    {
+      "id": "88fc",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "cancelled",
+      "contactInfo": {
+        "name": "xyz",
+        "phone": "1234567890"
+      },
+      "message": "",
+      "createdAt": "2025-10-26T11:04:15.701Z"
+    },
+    {
+      "id": "df3c",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "requested",
+      "contactInfo": {
+        "name": "xyz",
+        "phone": "1234567890"
+      },
+      "message": "",
+      "createdAt": "2025-10-26T11:06:09.966Z"
+    },
+    {
+      "id": "08d6",
+      "listingId": "l-1",
+      "ngoId": "u-ngo1",
+      "status": "requested",
+      "contactInfo": {
+        "name": "xyz",
+        "phone": "1234567890"
+      },
+      "message": "",
+      "createdAt": "2025-10-26T11:10:01.842Z"
+    }
+  ]
+}

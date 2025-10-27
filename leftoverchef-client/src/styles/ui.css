@@ -1,0 +1,110 @@
+/* src/styles/ui.css */
+
+/* ------------------------------
+   GLOBAL UI IMPROVEMENTS
+   ------------------------------ */
+
+/* Add a smooth font and softer background */
+body {
+  @apply bg-gray-50 text-gray-800 leading-relaxed antialiased;
+}
+
+/* Heading typography */
+h1, h2, h3, h4 {
+  @apply font-semibold text-gray-900 tracking-tight;
+}
+
+/* Section titles (consistent spacing) */
+.section-title {
+  @apply text-2xl font-bold mb-4 text-indigo-700;
+}
+
+/* Cards */
+.card {
+  @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 ease-in-out;
+}
+
+.card img {
+  @apply rounded-t-xl;
+}
+
+.card-body {
+  @apply p-4;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2;
+}
+
+.btn-outline {
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700 px-4 py-2;
+}
+
+/* Status badges */
+.badge {
+  @apply inline-block px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-requested {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-claimed {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.badge-confirmed {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-cancelled {
+  @apply bg-red-100 text-red-700;
+}
+
+.badge-fulfilled {
+  @apply bg-indigo-100 text-indigo-700;
+}
+
+/* Shadows and animations */
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
+}
+
+/* Layout helpers */
+.container {
+  @apply max-w-6xl mx-auto px-4;
+}
+
+.section {
+  @apply py-10;
+}
+
+/* Toastify customization */
+.Toastify__toast-theme--light {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+/* Input fields */
+input, textarea {
+  @apply border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-indigo-500 focus:outline-none;
+}
+
+/* Auth forms */
+.auth-box {
+  @apply bg-white shadow-md rounded-xl p-8 max-w-md mx-auto;
+}
+
+.auth-title {
+  @apply text-2xl font-semibold text-center mb-6 text-indigo-700;
+}
