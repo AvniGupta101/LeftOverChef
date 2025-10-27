@@ -7,6 +7,7 @@ import MyClaims from "./pages/MyClaims";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ListingDetails from "./pages/ListingDetails";
+import Help from"./pages/help"
 
 export default function App() {
   <div className="bg-background text-foreground p-6 rounded-xl shadow-glow animate-fadeIn">
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/listing/:id" element={<ListingDetails />} />
+          <Route path="/help" element={<Help />} />
         </Routes>
       </main>
     </div>

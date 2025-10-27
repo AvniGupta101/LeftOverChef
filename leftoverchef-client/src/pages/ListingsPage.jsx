@@ -1,114 +1,3 @@
-// // src/pages/ListingsPage.jsx
-// import React, { useState } from "react";
-// import { useListings } from "../hooks/useListings";
-// import ClaimModal from "../components/ClaimModal";
-// import { useQueryClient } from "@tanstack/react-query";
-// import { api } from "../api/client";
-// import { useAuth } from "../hooks/useAuth";
-// import { useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
-
-// export default function ListingsPage() {
-//   const queryClient = useQueryClient();
-//   const { data, isLoading, isError } = useListings({ status: "approved" });
-//   const [selectedListing, setSelectedListing] = useState(null);
-//   const { user, isAuthenticated } = useAuth();
-//   const navigate = useNavigate();
-
-//   if (isLoading) return <div className="text-center mt-10">Loading listings...</div>;
-//   if (isError) return <div className="text-center text-red-500 mt-10">Error loading listings!</div>;
-
-//   // onSuccess: called after claim POST returns
-//   const handleClaimSuccess = async (createdClaim) => {
-//     try {
-//       // Ensure we have the listing id (backend returns listingId)
-//       const listingId = createdClaim.listingId || createdClaim.listing || createdClaim.listing_id;
-//       if (!listingId) {
-//         console.warn("No listingId on created claim:", createdClaim);
-//       } else {
-//         // Patch listing status via API (backend expects /api/listings/:id)
-//         await api.patch(`/listings/${listingId}`, {
-//           status: "claimed",
-//         });
-//       }
-
-//       // Refetch listings and claims so UI updates
-//       queryClient.invalidateQueries({ queryKey: ["listings"] });
-//       queryClient.invalidateQueries({ queryKey: ["claims"] });
-
-//       console.log(`Listing ${listingId} marked as claimed`);
-//       toast.success("Listing claimed — check My Claims to follow up");
-//     } catch (err) {
-//       console.error("Failed to mark listing claimed:", err);
-//       toast.error("Failed to update listing status");
-//     } finally {
-//       // Close modal
-//       setSelectedListing(null);
-//     }
-//   };
-
-//   // click handler that enforces auth & role
-//   const onClaimClick = (listing) => {
-//     if (!isAuthenticated) {
-//       toast.info("Please log in as an NGO to claim donations.");
-//       navigate("/login");
-//       return;
-//     }
-//     if (user?.role !== "ngo") {
-//       toast.warn("Only NGOs can claim donations. Please register/login as an NGO.");
-//       return;
-//     }
-
-//     setSelectedListing(listing);
-//   };
-
-//   return (
-//     <div className="max-w-5xl mx-auto mt-6">
-//       <h1 className="text-2xl font-semibold mb-4 text-indigo-700">Available Donations</h1>
-
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-//         {(data || []).map((listing) => {
-//           const lid = listing._id || listing.id || listing.listingId;
-//           return (
-//             <div key={lid} className="bg-white shadow rounded p-4 hover:shadow-lg">
-//               <img
-//                 src={listing.images?.[0]?.url || "https://via.placeholder.com/600x400?text=No+Image"}
-//                 alt={listing.title}
-//                 className="h-40 w-full object-cover rounded"
-//               />
-//               <h2 className="font-bold mt-3 text-lg">{listing.title}</h2>
-//               <p className="text-sm text-gray-600">{(listing.description || "").slice(0, 80)}...</p>
-//               <p className="text-xs mt-2 text-gray-500">Status: {listing.status}</p>
-
-//               <div className="mt-3 flex gap-2">
-//                 <button
-//                   onClick={() => onClaimClick(listing)}
-//                   className={`text-sm px-4 py-2 rounded-lg ${
-//                     user?.role === "ngo" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-gray-200 text-gray-600"
-//                   }`}
-//                 >
-//                   Claim
-//                 </button>
-
-//                 {/* optional: view details link (later) */}
-//                 {/* <Link to={`/listing/${lid}`} className="text-sm text-gray-600 underline">View</Link> */}
-//               </div>
-//             </div>
-//           );
-//         })}
-//       </div>
-
-//       {selectedListing && (
-//         <ClaimModal
-//           listing={selectedListing}
-//           onClose={() => setSelectedListing(null)}
-//           onSuccess={handleClaimSuccess}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-// src/pages/ListingsPage.jsx
 // src/pages/ListingsPage.jsx
 import React, { useState } from "react";
 import { useListings } from "../hooks/useListings";
@@ -118,7 +7,17 @@ import { api } from "../api/client";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Search, MapPin, Heart, Clock, TrendingUp, Users, Award, Star } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Heart,
+  Clock,
+  TrendingUp,
+  Users,
+  Award,
+  Star,
+  Package,
+} from "lucide-react";
 
 export default function ListingsPage() {
   const queryClient = useQueryClient();
@@ -284,26 +183,43 @@ export default function ListingsPage() {
 
       {/* Listings */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Available Donations</h2>
-            <p className="text-gray-600">Fresh food ready to be shared with those in need</p>
-          </div>
-          
-          <div className="flex gap-2 bg-white rounded-xl p-1 shadow-sm border border-gray-200">
-            {['all', 'urgent', 'nearby'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveFilter(tab)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                  activeFilter === tab 
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' 
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
+        {/* Enhanced Section Header */}
+        <div className="relative mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div className="relative">
+              <div className="inline-block">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Package className="w-7 h-7 text-white" />
+                  </div>
+                  <h2 className="text-4xl lg:text-5xl font-bold">
+                    <span className="bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+                      Available Donations
+                    </span>
+                  </h2>
+                </div>
+                <div className="h-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-full w-32"></div>
+              </div>
+              <p className="text-gray-600 text-lg mt-4 max-w-2xl">
+                Fresh food ready to be shared with those in need. Every meal makes a difference.
+              </p>
+            </div>
+            
+            <div className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-lg border border-gray-200">
+              {['all', 'urgent', 'nearby'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveFilter(tab)}
+                  className={`px-5 py-3 rounded-xl font-semibold text-sm transition-all ${
+                    activeFilter === tab 
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md transform scale-105' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
