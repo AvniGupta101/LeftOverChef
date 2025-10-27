@@ -1,21 +1,20 @@
 // src/hooks/useClaims.js
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
-import { useAuth } from "../hooks/useAuth"; // assumes you export this hook
+import { useAuth } from "../hooks/useAuth";
 
 export function useClaims() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: ["claims", user?.id ?? "anonymous"],
+    queryKey: ["claims", user?.id || user?._id || "anonymous"],
     queryFn: async () => {
-      // Do not send ngoId from client — backend will use req.user (from JWT)
-      const { data } = await api.get("/claims", {
-        params: { _sort: "createdAt", _order: "desc" },
-      });
+      console.log("Fetching claims for user:", user);
+      const { data } = await api.get("/claims");
+      console.log("Claims received:", data);
       return data;
     },
-    enabled: Boolean(user?.id), // only run when logged in
+    enabled: Boolean(isAuthenticated && user), // only run when logged in
     staleTime: 1000 * 30,
   });
 }
