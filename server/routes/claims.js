@@ -7,30 +7,34 @@ import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
-
+// Helper function to parse quantity
+function parseQuantityToNumber(qty) {
+  if (qty == null) return null;
+  if (typeof qty === 'number') return qty;
+  const numericStr = String(qty).replace(/[^\d.]/g, '');
+  if (!numericStr) return null;
+  const value = parseFloat(numericStr);
+  return Number.isFinite(value) ? value : null;
+}
 
 // GET /api/claims?ngoId=xxx  (admins may see all later)
 router.get("/", requireAuth, async (req, res) => {
   console.log("/api/claims called — req.user:", req.user, " req.query:", req.query);
   try {
     const { ngoId } = req.query;
-    // if ngoId provided and requestor is admin allow, else use req.user.id for NGO
     const q = {};
 
     if (ngoId) {
-      // allow admin to query for other ngos
       if (req.user.role !== "admin") {
         return res.status(403).json({ error: "Forbidden" });
       }
       q.ngoId = ngoId;
     } else {
-      // default behavior: return claims for logged-in NGO (or all for admin)
       if (req.user.role === "ngo") {
         q.ngoId = req.user.id;
       } else if (req.user.role === "admin") {
         // admins get everything if no filter
       } else {
-        // other roles not allowed to list claims
         return res.status(403).json({ error: "Forbidden" });
       }
     }
@@ -45,20 +49,45 @@ router.get("/", requireAuth, async (req, res) => {
 // POST /api/claims  — requires auth (NGO)
 router.post("/", requireAuth, async (req, res) => {
   try {
+    console.log("=== POST /api/claims ===");
+    console.log("req.user:", req.user);
+    console.log("req.body:", req.body);
+
     // only NGOs may create claims
     if (req.user.role !== "ngo") {
       return res.status(403).json({ error: "Only NGOs may create claims" });
     }
 
     const { listingId, contactInfo, message } = req.body;
+    
     // validate required fields
-    if (!listingId) return res.status(400).json({ error: "listingId required" });
+    if (!listingId) {
+      return res.status(400).json({ error: "listingId required" });
+    }
+
+    // validate listingId format
+    if (!mongoose.Types.ObjectId.isValid(listingId)) {
+      return res.status(400).json({ error: "Invalid listingId format" });
+    }
 
     // check listing exists and is claimable
     const listing = await Listing.findById(listingId);
-    if (!listing) return res.status(404).json({ error: "Listing not found" });
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+    
     if (listing.status === "claimed") {
       return res.status(400).json({ error: "Listing already claimed" });
+    }
+
+    // FIX: Auto-sanitize quantity if it's a string
+    if (listing.quantity && typeof listing.quantity === 'string') {
+      const parsedQty = parseQuantityToNumber(listing.quantity);
+      if (parsedQty !== null) {
+        console.log(`Auto-fixing quantity: "${listing.quantity}" -> ${parsedQty}`);
+        listing.quantity = parsedQty;
+        await listing.save();
+      }
     }
 
     // create claim, set ngoId from req.user
@@ -70,17 +99,27 @@ router.post("/", requireAuth, async (req, res) => {
       message: message || "",
     });
 
-    // Optionally mark listing claimed server-side to avoid races
+    console.log("Claim created successfully:", claim._id);
+
+    // Optionally mark listing claimed
     listing.status = "claimed";
     await listing.save();
 
     return res.status(201).json(claim);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error("=== POST /api/claims ERROR ===");
+    console.error("Error name:", err.name);
+    console.error("Error message:", err.message);
+    console.error("Error stack:", err.stack);
+    
+    // Return detailed error for debugging
+    return res.status(500).json({ 
+      error: err.message,
+      name: err.name,
+      details: err.errors || err.toString()
+    });
   }
 });
-// at top of file ensure mongoose is imported:
-// import mongoose from "mongoose";
 
 router.post("/fulfill", requireAuth, async (req, res) => {
   try {
@@ -94,29 +133,23 @@ router.post("/fulfill", requireAuth, async (req, res) => {
     const { listingId } = req.body;
     if (!listingId) return res.status(400).json({ error: "listingId required" });
 
-    // validate listingId format
     if (!mongoose.Types.ObjectId.isValid(listingId)) {
       return res.status(400).json({ error: "invalid listingId" });
     }
 
-    // find the claim belonging to this NGO for this listing
     const claim = await Claim.findOne({ listingId: listingId, ngoId: req.user.id });
     if (!claim) {
       console.log("Fulfill: claim not found for listingId", listingId, "ngoId", req.user.id);
       return res.status(404).json({ error: "Claim not found for this NGO/listing" });
     }
 
-    // set claim status to a value we know is valid for most schemas.
-    // If your Claim schema allows "fulfilled" then change this to "fulfilled".
-    claim.status = "confirmed";
+    claim.status = "fulfilled";
 
     try {
       await claim.save();
     } catch (saveErr) {
-      // If Mongoose validation error, return details
       if (saveErr.name === "ValidationError") {
         console.error("Claim save validation failed:", saveErr);
-        // collect error messages
         const validationErrors = {};
         for (const key in saveErr.errors) validationErrors[key] = saveErr.errors[key].message;
         return res.status(400).json({
@@ -124,11 +157,9 @@ router.post("/fulfill", requireAuth, async (req, res) => {
           details: validationErrors,
         });
       }
-      // unknown save error -> bubble up
       throw saveErr;
     }
 
-    // update listing too
     const listing = await Listing.findById(listingId);
     if (listing) {
       listing.status = "fulfilled";
@@ -136,8 +167,7 @@ router.post("/fulfill", requireAuth, async (req, res) => {
         await listing.save();
       } catch (listErr) {
         console.error("Listing save error:", listErr);
-        // still return success for claim but report listing issue
-        return res.status(500).json({ error: "Listing save failed", details: listErr.message, stack: listErr.stack });
+        return res.status(500).json({ error: "Listing save failed", details: listErr.message });
       }
     } else {
       console.log("Fulfill: listing not found for id", listingId);
@@ -146,12 +176,9 @@ router.post("/fulfill", requireAuth, async (req, res) => {
     return res.json({ ok: true, claim });
   } catch (err) {
     console.error("Fulfill route unexpected error:", err);
-    // return detailed info for local debugging
-    return res.status(500).json({ error: err.message, name: err.name, stack: err.stack });
+    return res.status(500).json({ error: err.message, name: err.name });
   }
 });
-
-
 
 // PATCH /api/claims/:id  (update status — e.g., cancel)
 router.patch("/:id", requireAuth, async (req, res) => {
@@ -159,7 +186,6 @@ router.patch("/:id", requireAuth, async (req, res) => {
     const claim = await Claim.findById(req.params.id);
     if (!claim) return res.status(404).json({ error: "Not found" });
 
-    // allow NGO owner or admin to update
     if (req.user.role !== "admin" && req.user.id !== claim.ngoId.toString()) {
       return res.status(403).json({ error: "Forbidden" });
     }
