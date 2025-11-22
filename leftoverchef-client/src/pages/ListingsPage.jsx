@@ -289,6 +289,146 @@ export default function ListingsPage() {
           </div>
         )}
       </div>
+            {/* Testimonials Section */}
+      <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-indigo-100 px-4 py-2 rounded-full mb-4">
+              <Star className="w-5 h-5 text-indigo-600 fill-indigo-600" />
+              <span className="text-sm font-semibold text-indigo-700">Testimonials</span>
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Stories of Impact
+              </span>
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Hear from NGOs whose communities we've helped feed through our platform
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Priya Sharma",
+                organization: "Helping Hands Foundation",
+                role: "Director",
+                image: "https://ui-avatars.com/api/?name=Priya+Sharma&background=4f46e5&color=fff&size=128",
+                rating: 5,
+                text: "LeftoverChef has been a game-changer for us. We've been able to feed over 500 families in the last month alone. The platform makes it so easy to connect with donors and coordinate pickups.",
+                meals: "2,000+ meals"
+              },
+              {
+                name: "Rajesh Kumar",
+                organization: "Food For All NGO",
+                role: "Coordinator",
+                image: "https://ui-avatars.com/api/?name=Rajesh+Kumar&background=9333ea&color=fff&size=128",
+                rating: 5,
+                text: "The real-time notifications and easy claim process have streamlined our operations. We can now respond faster to food donations and ensure nothing goes to waste. Truly grateful for this platform!",
+                meals: "1,500+ meals"
+              },
+              {
+                name: "Anjali Desai",
+                organization: "Community Kitchen Project",
+                role: "Founder",
+                image: "https://ui-avatars.com/api/?name=Anjali+Desai&background=ec4899&color=fff&size=128",
+                rating: 5,
+                text: "Before LeftoverChef, coordinating food donations was chaotic. Now, everything is organized and transparent. The impact on our community has been tremendous - we're feeding more people than ever!",
+                meals: "3,200+ meals"
+              },
+              {
+                name: "Mohammed Ali",
+                organization: "Urban Relief Center",
+                role: "Operations Head",
+                image: "https://ui-avatars.com/api/?name=Mohammed+Ali&background=10b981&color=fff&size=128",
+                rating: 5,
+                text: "The platform's user-friendly interface makes it accessible even for our volunteers with limited tech experience. We've significantly reduced food waste in our area while helping more families.",
+                meals: "1,800+ meals"
+              },
+              {
+                name: "Sunita Patel",
+                organization: "Hope Kitchen Initiative",
+                role: "Managing Director",
+                image: "https://ui-avatars.com/api/?name=Sunita+Patel&background=f59e0b&color=fff&size=128",
+                rating: 5,
+                text: "What I love most is the transparency and tracking. We can show our donors exactly how many meals we've distributed. LeftoverChef has helped us build trust and expand our reach exponentially.",
+                meals: "2,700+ meals"
+              },
+              {
+                name: "David Wilson",
+                organization: "Shelter Support Network",
+                role: "Program Manager",
+                image: "https://ui-avatars.com/api/?name=David+Wilson&background=3b82f6&color=fff&size=128",
+                rating: 5,
+                text: "The impact tracking and claim history features are incredible. We can generate reports for our stakeholders showing real data on our food rescue efforts. This platform is making hunger relief more efficient.",
+                meals: "2,400+ meals"
+              }
+            ].map((testimonial, i) => (
+              <div key={i} className="group bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-indigo-200 hover:-translate-y-2">
+                <div className="flex items-start gap-4 mb-6">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all"
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 text-lg mb-1">{testimonial.name}</h4>
+                    <p className="text-sm text-indigo-600 font-semibold mb-1">{testimonial.organization}</p>
+                    <p className="text-xs text-gray-500">{testimonial.role}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, idx) => (
+                    <Star key={idx} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+
+                <p className="text-gray-600 leading-relaxed mb-6 italic">
+                  "{testimonial.text}"
+                </p>
+
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2 rounded-full">
+                    <Heart className="w-4 h-4 text-indigo-600" />
+                    <span className="text-sm font-semibold text-indigo-700">{testimonial.meals} served</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Impact Stats */}
+          <div className="mt-16 bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                  98%
+                </div>
+                <div className="text-gray-600 font-medium">Satisfaction Rate</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                  15K+
+                </div>
+                <div className="text-gray-600 font-medium">Meals Delivered</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
+                  100+
+                </div>
+                <div className="text-gray-600 font-medium">Partner NGOs</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                  24/7
+                </div>
+                <div className="text-gray-600 font-medium">Platform Uptime</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* CTA Section */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16">
