@@ -1,17 +1,15 @@
 // server/routes/users.js
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+import express from 'express';
+import mongoose from 'mongoose';
+import User from '../models/User.js';
+import Listing from '../models/Listing.js';
+import { requireAuth, permit } from '../middleware/auth.js';
 
-// Adjust these paths if your project structure differs
-const User = require('../models/User');
-const Listing = require('../models/Listing');
-const { requireAuth, permit } = require('../middleware/auth'); // optional for protected actions
+const router = express.Router();
 
 // Helper: compute stats for a donor
 async function computeUserStats(userId) {
-  // Adjust field names if your Listing schema differs (quantity/unit etc).
-  const match = { donorId: mongoose.Types.ObjectId(userId) };
+  const match = { donorId: new mongoose.Types.ObjectId(userId) };
 
   const agg = await Listing.aggregate([
     { $match: match },
@@ -34,8 +32,6 @@ async function computeUserStats(userId) {
             $cond: [{ $eq: ['$status', 'picked'] }, 1, 0]
           }
         },
-        // Here we assume `quantity` holds number of meals or units.
-        // If you have a separate meals field, replace '$quantity' accordingly.
         mealsDonated: { $sum: { $ifNull: ['$quantity', 0] } }
       }
     }
@@ -62,8 +58,7 @@ async function computeUserStats(userId) {
   return stats;
 }
 
-// GET /api/users/:id
-// Public: returns basic profile info and stats
+// GET /api/users/:id - Get user profile
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -72,7 +67,7 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Invalid user id' });
     }
 
-    const user = await User.findById(id).select('name email avatarUrl createdAt role'); // select only public fields
+    const user = await User.findById(id).select('name email avatarUrl createdAt role');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const stats = await computeUserStats(id);
@@ -80,7 +75,7 @@ router.get('/:id', async (req, res) => {
     return res.json({
       _id: user._id,
       name: user.name,
-      email: user.email, // if you want to hide email for public profiles, remove this line
+      email: user.email,
       avatarUrl: user.avatarUrl || null,
       joinedAt: user.createdAt,
       stats
@@ -91,9 +86,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// GET /api/users/:id/listings
-// Public: returns listings by donorId, supports pagination & status filter
-// Query params: page, limit, status, q (search)
+// GET /api/users/:id/listings - Get listings by user
 router.get('/:id/listings', async (req, res) => {
   try {
     const { id } = req.params;
@@ -106,11 +99,10 @@ router.get('/:id/listings', async (req, res) => {
       return res.status(400).json({ message: 'Invalid user id' });
     }
 
-    const filter = { donorId: mongoose.Types.ObjectId(id) };
-    if (status) filter.status = status; // e.g. available, claimed, picked
+    const filter = { donorId: new mongoose.Types.ObjectId(id) };
+    if (status) filter.status = status;
 
     if (q) {
-      // simple text search on title/description (requires text index for better perf)
       filter.$or = [
         { title: { $regex: q, $options: 'i' } },
         { description: { $regex: q, $options: 'i' } }
@@ -123,7 +115,7 @@ router.get('/:id/listings', async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .select('title description quantity unit pickupAddress pickupTime perishabilityHours imageUrl status mlPrediction mlConfidence createdAt updatedAt') // select fields to return
+        .select('title description quantity unit pickupAddress pickupTime perishabilityHours imageUrl status mlPrediction mlConfidence createdAt updatedAt')
         .lean()
     ]);
 
@@ -142,4 +134,4 @@ router.get('/:id/listings', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

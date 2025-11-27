@@ -104,11 +104,138 @@
 //   );
 // }
 // client/src/pages/MyListings.jsx
+// import React, { useEffect, useState } from "react";
+// import { api } from "../api/client";
+// import { useAuth } from "../hooks/useAuth"; // or wherever your hook is
+// // Optional: import a ListingCard component if you have one.
+// // import ListingCard from "../components/ListingCard";
+
+// function MLBadge({ mlPrediction, mlConfidence }) {
+//   if (!mlPrediction) return null;
+//   const isFresh = mlPrediction === "fresh";
+//   return (
+//     <div style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+//       <span style={{
+//         background: isFresh ? "#d1fae5" : "#fee2e2",
+//         color: isFresh ? "#065f46" : "#991b1b",
+//         padding: "4px 8px",
+//         borderRadius: 12,
+//         fontWeight: 600,
+//         fontSize: 12
+//       }}>
+//         {isFresh ? "Fresh" : "Spoiled"}
+//       </span>
+//       <small style={{ color: "#6b7280" }}>{Math.round((mlConfidence || 0) * 100)}%</small>
+//     </div>
+//   );
+// }
+
+// export default function MyListings() {
+//   const { user } = useAuth();
+//   const [listings, setListings] = useState(null); // null = loading
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     // debug: show current user
+//     console.log("MyListings mount: user =", user);
+
+//     // if no user, don't attempt API (but still set empty array)
+//     if (!user) {
+//       setListings([]); // avoid infinite loading
+//       return;
+//     }
+
+//     let cancelled = false;
+//     (async () => {
+//       try {
+//         setError(null);
+//         setListings(null); // loading
+//         console.log("Fetching /listings/mine from:", api.defaults.baseURL);
+//         const res = await api.get("/listings/mine");
+//         if (cancelled) return;
+//         console.log("MyListings: server returned", res.status, res.data);
+//         setListings(Array.isArray(res.data) ? res.data : []);
+//       } catch (err) {
+//         console.error("Failed to fetch my listings:", err?.response?.data || err.message);
+//         if (!cancelled) {
+//           setError(err?.response?.data?.error || err.message || "Failed to load listings");
+//           setListings([]); // stop loading
+//         }
+//       }
+//     })();
+
+//     return () => { cancelled = true; };
+//   }, [user]);
+
+//   // UI states
+//   if (listings === null) {
+//     return (
+//       <div className="p-8 text-center">
+//         <p className="text-gray-600">Loading your listings…</p>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div className="p-8 text-center">
+//         <p className="text-red-600">Error: {String(error)}</p>
+//       </div>
+//     );
+//   }
+
+//   if (!listings.length) {
+//     return (
+//       <div className="p-8 text-center">
+//         <h2 className="text-2xl font-semibold">My Listings</h2>
+//         <p className="text-gray-600 mt-2">You haven't created any listings yet.</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="max-w-5xl mx-auto p-6">
+//       <h2 className="text-2xl font-semibold mb-4">My Listings</h2>
+//       <div className="grid gap-4">
+//         {listings.map((l) => (
+//           <div key={l._id} className="bg-white rounded-xl shadow p-4 flex gap-4 items-center">
+//             <div className="w-28 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+//               {l.imageUrl ? (
+//                 <img src={l.imageUrl} alt={l.title} className="w-full h-full object-cover" />
+//               ) : (
+//                 <div className="w-full h-full flex items-center justify-center text-sm text-gray-400">No image</div>
+//               )}
+//             </div>
+//             <div className="flex-1">
+//               <div className="flex items-center justify-between">
+//                 <h3 className="text-lg font-medium">{l.title || "Donation"}</h3>
+//                 <span className="text-sm text-gray-500">{new Date(l.createdAt).toLocaleString()}</span>
+//               </div>
+//               <p className="text-sm text-gray-600 mt-1">{l.description || "—"}</p>
+//               <div className="mt-2 text-sm text-gray-700 flex items-center gap-4">
+//                 <div><strong>{l.quantity}</strong> {l.unit || "servings"}</div>
+//                 <div>
+//                   <span className={
+//                     l.status === "available" ? "text-green-600" :
+//                     l.status === "claimed" ? "text-yellow-600" :
+//                     l.status === "picked" ? "text-gray-600" : "text-red-600"
+//                   }>
+//                     {l.status}
+//                   </span>
+//                 </div>
+//                 <div><MLBadge mlPrediction={l.mlPrediction} mlConfidence={l.mlConfidence} /></div>
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+// client/src/pages/MyListings.jsx
 import React, { useEffect, useState } from "react";
 import { api } from "../api/client";
-import { useAuth } from "../hooks/useAuth"; // or wherever your hook is
-// Optional: import a ListingCard component if you have one.
-// import ListingCard from "../components/ListingCard";
+import { useAuth } from "../hooks/useAuth";
 
 function MLBadge({ mlPrediction, mlConfidence }) {
   if (!mlPrediction) return null;
@@ -136,30 +263,54 @@ export default function MyListings() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // debug: show current user
-    console.log("MyListings mount: user =", user);
+    // DEBUG: show current user
+    console.log("=== MyListings Debug ===");
+    console.log("user object:", user);
+    console.log("user._id:", user?._id);
+    console.log("user.id:", user?.id);
+    console.log("api.defaults.baseURL:", api.defaults.baseURL);
+    console.log("token:", localStorage.getItem('token'));
 
-    // if no user, don't attempt API (but still set empty array)
+    // if no user, don't attempt API
     if (!user) {
-      setListings([]); // avoid infinite loading
+      console.log("No user found, skipping fetch");
+      setListings([]);
       return;
     }
 
     let cancelled = false;
+    
     (async () => {
       try {
         setError(null);
         setListings(null); // loading
-        console.log("Fetching /listings/mine from:", api.defaults.baseURL);
-        const res = await api.get("/listings/mine");
+        
+        const endpoint = "/listings/mine";
+        console.log("Fetching from:", `${api.defaults.baseURL}${endpoint}`);
+        console.log("Authorization header:", api.defaults.headers.common["Authorization"]);
+        
+        const res = await api.get(endpoint);
+        
         if (cancelled) return;
-        console.log("MyListings: server returned", res.status, res.data);
+        
+        console.log("Response status:", res.status);
+        console.log("Response data:", res.data);
+        
         setListings(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Failed to fetch my listings:", err?.response?.data || err.message);
+        console.error("=== Fetch Error ===");
+        console.error("Error:", err);
+        console.error("Response:", err?.response);
+        console.error("Status:", err?.response?.status);
+        console.error("Data:", err?.response?.data);
+        
         if (!cancelled) {
-          setError(err?.response?.data?.error || err.message || "Failed to load listings");
-          setListings([]); // stop loading
+          const errMsg = err?.response?.data?.error || 
+                        err?.response?.data?.message || 
+                        err.message || 
+                        "Failed to load listings";
+          setError(errMsg);
+          setListings([]);
         }
       }
     })();
@@ -171,7 +322,8 @@ export default function MyListings() {
   if (listings === null) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gray-600">Loading your listings…</p>
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+        <p className="text-gray-600 mt-4">Loading your listings…</p>
       </div>
     );
   }
@@ -179,7 +331,16 @@ export default function MyListings() {
   if (error) {
     return (
       <div className="p-8 text-center">
-        <p className="text-red-600">Error: {String(error)}</p>
+        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 max-w-md mx-auto">
+          <p className="text-red-600 font-semibold mb-2">Error Loading Listings</p>
+          <p className="text-red-800 text-sm">{String(error)}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -195,7 +356,7 @@ export default function MyListings() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-4">My Listings</h2>
+      <h2 className="text-2xl font-semibold mb-4">My Listings ({listings.length})</h2>
       <div className="grid gap-4">
         {listings.map((l) => (
           <div key={l._id} className="bg-white rounded-xl shadow p-4 flex gap-4 items-center">
