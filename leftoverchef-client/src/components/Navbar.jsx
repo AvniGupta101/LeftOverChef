@@ -580,7 +580,14 @@ export default function Navbar() {
                           <FileText className="w-4 h-4" />
                           <span>My Claims</span>
                         </Link>
-                        
+                         <Link
+                          to="/donate"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>Donate</span>
+                        </Link>
                         <Link
                           to="/help"
                           onClick={() => setProfileOpen(false)}

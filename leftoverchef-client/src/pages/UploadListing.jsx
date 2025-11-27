@@ -142,7 +142,7 @@ export default function UploadListing() {
 
       // Redirect to my-listings page
       setTimeout(() => {
-        navigate("/my-listings");
+        navigate("/");
       }, 800);
 
     } catch (error) {
@@ -222,7 +222,7 @@ export default function UploadListing() {
                   <img 
                     src={imagePreview} 
                     alt="Preview" 
-                    style={{ width: '100%', height: '16rem', objectFit: 'cover' }}
+                    style={{ width: '100%', height: '40rem', objectFit: 'cover' }}
                   />
                   <button
                     type="button"

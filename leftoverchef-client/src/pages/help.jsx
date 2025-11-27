@@ -331,15 +331,15 @@ export default function Help() {
               support@leftoverchef.com
             </a>
           </div>
-
+         
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-xl transition-all">
             <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-4">
               <Phone className="w-7 h-7 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Always there!</h3>
             <p className="text-gray-600 mb-4">Mon-Fri, 9am-6pm</p>
             <a href="tel:1-800-FOOD-HELP" className="text-indigo-600 font-semibold hover:text-indigo-700">
-              1-800-FOOD-HELP
+              Yummy food Available!
             </a>
           </div>
 
@@ -347,10 +347,10 @@ export default function Help() {
             <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4">
               <MessageCircle className="w-7 h-7 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Live Chat</h3>
-            <p className="text-gray-600 mb-4">Available during business hours</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+            <p className="text-gray-600 mb-4">Mon-Fri, 9am-6pm</p>
             <button className="text-indigo-600 font-semibold hover:text-indigo-700">
-              Start Chat →
+               1-800-FOOD-HELP
             </button>
           </div>
         </div>
