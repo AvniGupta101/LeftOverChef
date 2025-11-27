@@ -44,6 +44,11 @@ import Register from "./pages/Register";
 import ListingDetails from "./pages/ListingDetails";
 import Help from "./pages/Help";
 import UploadListing from "./pages/UploadListing"; // New donor upload page
+import ProfilePage from "./pages/ProfilePage";
+import { AuthContext } from "./context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -59,6 +64,21 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
   return children;
 };
+// Helper that redirects logged-in user to /profile/:id
+function ProfileRedirect() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user._id) {
+      navigate(`/profile/${user._id}`);
+    } else {
+      navigate("/login");
+    }
+  }, [user]);
+
+  return null;
+}
 
 export default function App() {
   return (
@@ -92,7 +112,13 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          
+          <Route path="/profile/:id" element={<ProfilePage />} />
+
+<Route
+  path="/profile/me"
+  element={<ProfileRedirect />}
+/>
+
           {/* Optional: My Listings page for donors to see their uploads */}
           <Route
             path="/my-listings"

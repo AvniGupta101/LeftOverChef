@@ -1,6 +1,6 @@
 // server/models/Listing.js
-import mongoose from 'mongoose'
-const { Schema } = mongoose
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 const listingSchema = new Schema({
   donorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -12,6 +12,11 @@ const listingSchema = new Schema({
   pickupTime: Date,
   perishabilityHours: Number,
   imageUrl: String, // Cloudinary URL
+
+  // ML fields
+  mlPrediction: { type: String, enum: ['fresh', 'spoiled'], required: false },
+  mlConfidence: { type: Number, min: 0, max: 1, required: false },
+
   status: { 
     type: String, 
     enum: ['available', 'claimed', 'picked', 'expired'], 
@@ -19,11 +24,11 @@ const listingSchema = new Schema({
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
-})
+});
 
 listingSchema.pre('save', function(next) {
-  this.updatedAt = new Date()
-  next()
-})
+  this.updatedAt = new Date();
+  next();
+});
 
-export default mongoose.model('Listing', listingSchema)
+export default mongoose.model('Listing', listingSchema);
