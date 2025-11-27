@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -11,11 +12,17 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
     const res = await login(email, password);
     if (res.success) {
-      navigate("/"); // redirect to listings/home
+      const role = res.user?.role;
+      if (role === "donor") {
+        navigate("/donate", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } else {
-      setError(res.message);
+      setError(res.message || "Login failed");
     }
   }
 
@@ -23,7 +30,7 @@ export default function Login() {
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center text-indigo-600 mb-6">
-          NGO Login
+          Login
         </h2>
         {error && <div className="text-red-600 mb-3 text-sm">{error}</div>}
 
