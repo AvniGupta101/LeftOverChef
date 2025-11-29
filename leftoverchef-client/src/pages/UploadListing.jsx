@@ -154,7 +154,7 @@ export default function UploadListing() {
         error?.message || 
         "Failed to create listing";
       
-      toast.error(errorMessage);
+      toast.error("Spoiled Food!");
       
       // If unauthorized, redirect to login
       if (error?.response?.status === 401 || error?.response?.status === 403) {
