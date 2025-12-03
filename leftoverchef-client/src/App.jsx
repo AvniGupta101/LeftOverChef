@@ -42,7 +42,7 @@ import MyClaims from "./pages/MyClaims";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ListingDetails from "./pages/ListingDetails";
-import Help from "./pages/Help";
+import Help from "./pages/help";
 import UploadListing from "./pages/UploadListing"; // New donor upload page
 import ProfilePage from "./pages/ProfilePage";
 import { AuthContext } from "./context/AuthContext";
