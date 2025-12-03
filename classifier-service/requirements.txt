@@ -5,6 +5,6 @@ numpy
 python-multipart
 requests
 
--f https://download.pytorch.org/whl/cpu/torch_stable.html
-torch==2.9.1+cpu
-torchvision==0.9.1+cpu
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
