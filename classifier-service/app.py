@@ -1,6 +1,7 @@
 # classifier-service/app.py
 import io
 import os
+import traceback
 import base64
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
@@ -150,7 +151,11 @@ async def classify(req: ClassifyRequest, request_raw: Request):
         client_ip = request_raw.client.host if request_raw.client else "unknown"
         print(f"[classify] client={client_ip} => prediction={pred_label} confidence={confidence:.4f} probs={probs}")
         return {"prediction": pred_label, "confidence": confidence}
+   
+
     except Exception as e:
-        # internal error — surface less implementation detail
-        print("Error during prediction:", e)
-        raise HTTPException(status_code=500, detail="Prediction failed")
+        print("FULL ERROR BELOW")
+        traceback.print_exc()
+        print("---------------")
+        raise HTTPException(status_code=500, detail=str(e))
+
