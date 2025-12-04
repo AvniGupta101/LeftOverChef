@@ -280,6 +280,24 @@ node scripts/fixQuantities.js
 ### Issue: CORS errors
 **Solution**: Verify `VITE_API_BASE` in frontend `.env` matches your backend URL.
 
+### Issue: 502 “Image classification failed” when posting listings
+**Cause**: The Express server cannot reach the FastAPI classifier when it runs in a different network namespace (Docker container, WSL2, etc.). In that case `127.0.0.1` points to the container/VM, not the Windows host where `uvicorn` is listening.
+
+**Solution**:
+1. From the backend shell, test connectivity to the classifier:
+   ```bash
+   curl -v http://127.0.0.1:8000/classify \
+     -H "Content-Type: application/json" \
+     -d "{\"imageBase64\":\"data:image/jpeg;base64,<trimmed>\"}"
+   ```
+   (Use a small base64 snippet or load it from a JSON file.)
+2. If the curl call fails with `ECONNREFUSED`, point the backend to the host that actually runs uvicorn:
+   - When running the backend in Docker Desktop: `CLASSIFIER_URL=http://host.docker.internal:8000/classify`
+   - When running inside WSL2: `CLASSIFIER_URL=http://$(grep nameserver /etc/resolv.conf | awk '{print $2}'):8000/classify`
+3. Restart the backend after changing `.env`.
+
+With the correct host/IP, POST `/api/listings` will receive the classifier prediction and return `201` instead of `502`.
+
 ---
 
 ## 🤝 Contributing
