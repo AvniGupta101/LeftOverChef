@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from PIL import Image
 import torch
-import numpy as np
+
 from torchvision import transforms
 
 # your model builder import (unchanged)
