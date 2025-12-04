@@ -304,7 +304,9 @@ def predict(img: Image.Image):
             out = out[0]
         probs = torch.softmax(out, dim=1)  # [1, num_classes]
 
-    probs_row = probs[0]  # [num_classes]
+    # 5.5. Extract per-sample tensors
+    logits_row = out[0]       # [num_classes]
+    probs_row = probs[0]      # [num_classes]
 
     # 6. Argmax using torch only
     confidence_tensor, idx_tensor = torch.max(probs_row, dim=0)
@@ -313,6 +315,17 @@ def predict(img: Image.Image):
 
     prediction_label = LABELS[idx]
     probs_list = probs_row.tolist()
+    logits_list = logits_row.tolist()
+
+    # 7. Debug logging for analysis
+    print(
+        "[classify-debug]",
+        "logits=", logits_list,
+        "probs=", probs_list,
+        "pred=", prediction_label,
+        "conf=", f"{confidence:.4f}",
+        flush=True,
+    )
 
     return prediction_label, confidence, probs_list
 

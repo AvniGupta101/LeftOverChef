@@ -6,7 +6,8 @@ import { requireAuth, permit } from '../middleware/auth.js'
 import { uploadBase64Image } from '../config/cloudinary.js'
 
 const router = express.Router()
-const CLASSIFIER_URL = process.env.CLASSIFIER_URL || 'http://127.0.0.1:8000/classify'
+// Default to deployed ML service; override via CLASSIFIER_URL in .env for local dev
+const CLASSIFIER_URL = process.env.CLASSIFIER_URL || 'https://leftoverchef-ml4.onrender.com/classify'
 
 // GET /api/listings - Public or protected (view all listings)
 router.get('/', async (req, res) => {
@@ -88,15 +89,29 @@ router.post('/', requireAuth, permit(['donor']), async (req, res) => {
     const classifierPayload = { image_base64: imageBase64, imageBase64 }; // send both keys to be safe
 
     // 1) Call classifier
+    const classifierUrl = process.env.CLASSIFIER_URL || CLASSIFIER_URL;
+    console.log('[Classifier] calling', classifierUrl);
     let clfRes;
     try {
-      clfRes = await axios.post(process.env.CLASSIFIER_URL || CLASSIFIER_URL, classifierPayload, {
+      clfRes = await axios.post(classifierUrl, classifierPayload, {
         timeout: parseInt(process.env.CLASSIFIER_TIMEOUT_MS || "15000", 10),
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (err) {
-      console.error('Classifier call failed:', err?.response?.data || err.message);
-      return res.status(502).json({ error: 'Image classification failed. Please try again.' });
+      const details = {
+        url: classifierUrl,
+        message: err?.message,
+        code: err?.code,
+        status: err?.response?.status,
+        data: err?.response?.data,
+      };
+      console.error('Classifier call failed', details);
+      return res.status(502).json({
+        error: 'Image classification failed. Please try again.',
+        classifierStatus: details.status ?? null,
+        classifierCode: details.code ?? null,
+        classifierBody: details.data ?? null,
+      });
     }
 
     // Expecting classifier to return { prediction: "fresh"|"spoiled", confidence: 0-1 }
