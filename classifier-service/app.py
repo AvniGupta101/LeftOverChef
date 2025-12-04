@@ -83,21 +83,50 @@ def decode_base64_image(data_uri: str) -> Image.Image:
     except Exception as e:
         raise ValueError("Invalid base64 image") from e
 
+# def predict(img: Image.Image):
+#     if MODEL is None:
+#         raise RuntimeError("Model not loaded")
+#     x = transform(img).unsqueeze(0).to(DEVICE)
+#     with torch.no_grad():
+#         out = MODEL(x)
+#         if isinstance(out, (tuple, list)):
+#             out = out[0]
+#         probs = torch.softmax(out, dim=1).cpu().numpy()[0]  # shape (num_classes,)
+#     # pick best
+#     idx = int(np.argmax(probs))
+#     prediction_label = LABELS[idx]  # "fresh" or "spoiled"
+#     confidence = float(probs[idx])
+#     # Also return raw probs if you want (not used here)
+#     return prediction_label, confidence, probs.tolist()
+
 def predict(img: Image.Image):
     if MODEL is None:
         raise RuntimeError("Model not loaded")
-    x = transform(img).unsqueeze(0).to(DEVICE)
+
+    # 1. Preprocess
+    x = transform(img).unsqueeze(0).to(DEVICE)  # shape: [1, C, H, W]
+
+    # 2. Forward pass
     with torch.no_grad():
         out = MODEL(x)
         if isinstance(out, (tuple, list)):
             out = out[0]
-        probs = torch.softmax(out, dim=1).cpu().numpy()[0]  # shape (num_classes,)
-    # pick best
-    idx = int(np.argmax(probs))
-    prediction_label = LABELS[idx]  # "fresh" or "spoiled"
-    confidence = float(probs[idx])
-    # Also return raw probs if you want (not used here)
-    return prediction_label, confidence, probs.tolist()
+
+        # out shape: [1, num_classes]
+        probs = torch.softmax(out, dim=1)  # tensor [1, num_classes]
+
+    # 3. Take the first (and only) row
+    probs_row = probs[0]                 # tensor [num_classes]
+
+    # 4. Get max probability and index using torch only
+    confidence_tensor, idx_tensor = torch.max(probs_row, dim=0)
+    idx = int(idx_tensor.item())
+    confidence = float(confidence_tensor.item())
+
+    prediction_label = LABELS[idx]       # "fresh" or "spoiled"
+    probs_list = probs_row.tolist()      # just for debugging / optional
+
+    return prediction_label, confidence, probs_list
 
 @app.on_event("startup")
 def startup_event():
